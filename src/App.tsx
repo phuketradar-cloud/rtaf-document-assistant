@@ -7,6 +7,7 @@ import Editor from './pages/Editor';
 import DocumentList from './pages/DocumentList';
 import Templates from './pages/Templates';
 import Settings from './pages/Settings';
+import Learn from './pages/Learn';
 import { parseRoute, type Route } from './router';
 
 const LEAVE_MESSAGE = 'มีการแก้ไขที่ยังไม่ได้บันทึก ต้องการออกจากหน้านี้โดยไม่บันทึกหรือไม่?';
@@ -65,6 +66,9 @@ export default function App() {
       break;
     case 'templates':
       page = <Templates />;
+      break;
+    case 'learn':
+      page = <Learn />;
       break;
     case 'settings':
       page = <Settings />;

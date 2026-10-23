@@ -4,6 +4,7 @@ export type Route =
   | { name: 'edit'; id: string }
   | { name: 'documents' }
   | { name: 'templates' }
+  | { name: 'learn' }
   | { name: 'settings' }
   | { name: 'notfound' };
 
@@ -13,6 +14,7 @@ export function parseRoute(hash: string): Route {
   if (path === '/new') return { name: 'new' };
   if (path === '/documents') return { name: 'documents' };
   if (path === '/templates') return { name: 'templates' };
+  if (path === '/learn') return { name: 'learn' };
   if (path === '/settings') return { name: 'settings' };
   const m = /^\/edit\/(.+)$/.exec(path);
   if (m) return { name: 'edit', id: decodeURIComponent(m[1]) };

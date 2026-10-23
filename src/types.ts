@@ -79,6 +79,9 @@ export interface MemoTemplate {
   thaiDigits: boolean;
 
   requiredFields: FieldKey[];
+
+  /** ข้อความเริ่มต้นที่เติมให้เมื่อสร้างเอกสารใหม่ด้วยแม่แบบนี้ (เช่น ส่วนราชการ ผู้ลงนาม) */
+  defaultFields: Partial<MemoFields>;
 }
 
 export interface AppSettings {
