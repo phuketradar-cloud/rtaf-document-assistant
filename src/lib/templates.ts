@@ -1,4 +1,4 @@
-import type { Alignment, DateStyle, FieldKey, LabelKey, MemoTemplate } from '../types';
+import type { Alignment, DateStyle, FieldKey, LabelKey, MemoFields, MemoTemplate } from '../types';
 import { FIELD_KEYS } from './fields';
 
 export const BUILTIN_TEMPLATE_ID = 'builtin-memo-v1';
@@ -57,6 +57,8 @@ export const BUILTIN_TEMPLATE: MemoTemplate = {
   thaiDigits: false,
 
   requiredFields: ['department', 'docNumber', 'date', 'subject', 'to', 'body', 'signerName', 'signerPosition'],
+
+  defaultFields: {},
 };
 
 const ALIGNMENTS: Alignment[] = ['left', 'center', 'right', 'justify', 'thaiDistribute'];
@@ -98,6 +100,13 @@ export function normalizeTemplate(input: unknown): MemoTemplate | null {
   const required = Array.isArray(t.requiredFields)
     ? (t.requiredFields.filter((k) => FIELD_KEYS.includes(k as FieldKey)) as FieldKey[])
     : [...d.requiredFields];
+  const defaultFields: Partial<MemoFields> = {};
+  if (t.defaultFields && typeof t.defaultFields === 'object') {
+    for (const k of FIELD_KEYS) {
+      const v = (t.defaultFields as Record<string, unknown>)[k];
+      if (typeof v === 'string' && v !== '') defaultFields[k] = v;
+    }
+  }
   return {
     id: t.id,
     name: str(t.name, 'แม่แบบไม่มีชื่อ') || 'แม่แบบไม่มีชื่อ',
@@ -130,6 +139,7 @@ export function normalizeTemplate(input: unknown): MemoTemplate | null {
     dateStyle: DATE_STYLES.includes(t.dateStyle as DateStyle) ? (t.dateStyle as DateStyle) : d.dateStyle,
     thaiDigits: bool(t.thaiDigits, d.thaiDigits),
     requiredFields: required,
+    defaultFields,
   };
 }
 

@@ -8,6 +8,7 @@ import {
   TabStopType,
   TextRun,
 } from 'docx';
+import JSZip from 'jszip';
 import type { Alignment, MemoFields, MemoTemplate } from '../types';
 import { buildMemoLayout, type LayoutParagraph } from './layout';
 
@@ -35,7 +36,7 @@ function runStyle(t: MemoTemplate, sizePt: number, bold: boolean) {
     sizeComplexScript: Math.round(sizePt * 2),
     bold,
     boldComplexScript: bold,
-    language: { value: 'th-TH', bidirectional: 'th-TH' },
+    language: { bidirectional: 'th-TH' },
   };
 }
 
@@ -97,12 +98,35 @@ export function buildMemoDocument(fields: MemoFields, t: MemoTemplate): Document
   });
 }
 
+const DOCX_MIME = 'application/vnd.openxmlformats-officedocument.wordprocessingml.document';
+
+/**
+ * ใส่ <w:cs/> ให้ run ที่มีอักษรไทย เหมือนที่ Word ทำเมื่อพิมพ์ภาษาไทย
+ * ถ้าไม่มี Word จะตัดบรรทัดภาษาไทยต่างไป และการจัดแบบ “กระจายแบบไทย” จะยืดระยะระหว่างตัวอักษร
+ * (ไลบรารี docx ไม่มีตัวเลือกนี้ จึงแก้ใน XML หลังสร้างไฟล์)
+ */
+export function markThaiRunsComplexScript(xml: string): string {
+  return xml.replace(/<w:r><w:rPr>((?:(?!<\/w:rPr>).)*)<\/w:rPr>((?:(?!<\/w:r>).)*)<\/w:r>/gs, (whole, props: string, rest: string) => {
+    if (!/[฀-๿]/.test(rest) || props.includes('<w:cs/>')) return whole;
+    const withCs = props.includes('<w:lang') ? props.replace('<w:lang', '<w:cs/><w:lang') : `${props}<w:cs/>`;
+    return `<w:r><w:rPr>${withCs}</w:rPr>${rest}</w:r>`;
+  });
+}
+
+async function buildMemoDocxBytes(fields: MemoFields, t: MemoTemplate): Promise<Uint8Array> {
+  const base64 = await Packer.toBase64String(buildMemoDocument(fields, t));
+  const zip = await JSZip.loadAsync(base64, { base64: true });
+  const xml = await zip.file('word/document.xml')!.async('string');
+  zip.file('word/document.xml', markThaiRunsComplexScript(xml));
+  return zip.generateAsync({ type: 'uint8array', compression: 'DEFLATE', mimeType: DOCX_MIME });
+}
+
 export async function buildMemoDocxBlob(fields: MemoFields, t: MemoTemplate): Promise<Blob> {
-  return Packer.toBlob(buildMemoDocument(fields, t));
+  return new Blob([await buildMemoDocxBytes(fields, t)], { type: DOCX_MIME });
 }
 
 export async function buildMemoDocxBuffer(fields: MemoFields, t: MemoTemplate): Promise<Uint8Array> {
-  return Packer.toBuffer(buildMemoDocument(fields, t));
+  return buildMemoDocxBytes(fields, t);
 }
 
 /** ชื่อไฟล์จากเรื่องและวันที่ — ตัดอักขระที่ Windows ไม่อนุญาต */
