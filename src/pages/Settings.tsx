@@ -4,6 +4,12 @@ import { createBackup, mergeById, parseBackup, type BackupFile } from '../lib/ba
 import { downloadText } from '../lib/download';
 import { storageUsageBytes } from '../lib/storage';
 import { formatTimestamp, todayIso } from '../lib/thaiDate';
+import type { ThemeId } from '../types';
+
+const THEMES: { id: ThemeId; name: string; description: string; swatch: string[] }[] = [
+  { id: 'default', name: 'มาตรฐาน', description: 'พื้นสว่าง สีน้ำเงินกรมท่า เหมาะกับงานสำนักงานทั่วไป', swatch: ['#f3f5f8', '#1b3557', '#0f6b4f'] },
+  { id: 'hud', name: 'Futuristic HUD', description: 'พื้นมืด เส้นสีฟ้าแบบจอแสดงผลทางยุทธวิธี', swatch: ['#080e18', '#111f2d', '#27e5e0', '#8ddfff'] },
+];
 
 export default function Settings() {
   const { documents, templates, settings, updateSettings, replaceAll, clearAllData, notify } = useAppData();
@@ -71,6 +77,32 @@ export default function Settings() {
       <div className="page-head">
         <h1>ตั้งค่า</h1>
       </div>
+
+      <section className="card">
+        <h2>ธีมหน้าจอ</h2>
+        <p className="hint">มีผลเฉพาะหน้าจอโปรแกรมในเบราว์เซอร์นี้ ไม่มีผลกับไฟล์ Word ที่ส่งออก</p>
+        <div className="theme-options" role="radiogroup" aria-label="ธีมหน้าจอ" style={{ marginTop: '0.75rem' }}>
+          {THEMES.map((t) => (
+            <label key={t.id} className={`theme-option${settings.theme === t.id ? ' selected' : ''}`}>
+              <input
+                type="radio"
+                name="theme"
+                checked={settings.theme === t.id}
+                onChange={() => updateSettings({ ...settings, theme: t.id }) && notify('success', `เปลี่ยนเป็นธีม “${t.name}” แล้ว`)}
+              />
+              <span className="theme-swatch" aria-hidden="true">
+                {t.swatch.map((c) => (
+                  <span key={c} style={{ background: c }} />
+                ))}
+              </span>
+              <span>
+                <strong>{t.name}</strong>
+                <span className="hint">{t.description}</span>
+              </span>
+            </label>
+          ))}
+        </div>
+      </section>
 
       <section className="card">
         <h2>แม่แบบเริ่มต้นสำหรับเอกสารใหม่</h2>
