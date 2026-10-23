@@ -5,7 +5,7 @@ import { BUILTIN_TEMPLATE, normalizeTemplate } from '../src/lib/templates';
 import { validateMemo } from '../src/lib/validation';
 import { buildMemoLayout } from '../src/lib/layout';
 import { createBackup, mergeById, parseBackup } from '../src/lib/backup';
-import { loadDocuments, saveDocuments, StorageError, type KeyValueStore } from '../src/lib/storage';
+import { loadDocuments, normalizeSettings, saveDocuments, StorageError, type KeyValueStore } from '../src/lib/storage';
 import type { DocumentRecord } from '../src/types';
 import { testFields } from './testData';
 
@@ -95,13 +95,18 @@ describe('สำรองและนำเข้าข้อมูล', () => {
       createdAt: '2026-10-01T00:00:00.000Z', updatedAt: '2026-10-02T00:00:00.000Z',
     };
     const tpl = normalizeTemplate({ ...BUILTIN_TEMPLATE, id: 't1', name: 'แม่แบบทดสอบ' })!;
-    const backup = createBackup([doc], [BUILTIN_TEMPLATE, tpl], { defaultTemplateId: 't1' });
+    const backup = createBackup([doc], [BUILTIN_TEMPLATE, tpl], { defaultTemplateId: 't1', theme: 'hud' });
     const parsed = parseBackup(JSON.stringify(backup));
     expect(parsed.ok).toBe(true);
     if (!parsed.ok) return;
     expect(parsed.backup.documents).toEqual([doc]);
     expect(parsed.backup.templates.map((t) => t.id)).toEqual(['t1']);
     expect(parsed.backup.settings.defaultTemplateId).toBe('t1');
+    expect(parsed.backup.settings.theme).toBe('hud');
+  });
+  it('ธีมที่ไม่รู้จักหรือไม่มีในไฟล์เก่า ใช้ธีมมาตรฐาน', () => {
+    expect(normalizeSettings({ defaultTemplateId: 'x', theme: 'neon' }).theme).toBe('default');
+    expect(normalizeSettings({ defaultTemplateId: 'x' })).toEqual({ defaultTemplateId: 'x', theme: 'default' });
   });
   it('รวมข้อมูลโดยเก็บรายการที่แก้ไขล่าสุด', () => {
     const a = [{ id: '1', updatedAt: '2026-01-02' }, { id: '2', updatedAt: '2026-01-01' }];
