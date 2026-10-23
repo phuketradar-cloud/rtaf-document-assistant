@@ -43,6 +43,9 @@ describe('ส่งออก Word (.docx)', () => {
     expect(xml).toContain('<w:pageBreakBefore/>');
     expect(xml).toContain('<w:tab/>');
     expect(xml).toContain('w:bidi="th-TH"');
+    // run ภาษาไทยต้องมี <w:cs/> เหมือนไฟล์ที่ Word สร้าง (มีผลต่อการตัดบรรทัด/กระจายแบบไทย)
+    expect(xml).toMatch(/<w:cs\/><w:lang w:bidi="th-TH"\/><\/w:rPr><w:t[^>]*>ย่อหน้าทดสอบที่สอง/);
+    expect((xml.match(/<w:cs\/>/g) ?? []).length).toBeGreaterThan(10);
     expect(documentText).toContain('๒๓ ตุลาคม ๒๕๖๙');
 
     mkdirSync(OUT_DIR, { recursive: true });
