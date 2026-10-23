@@ -1,4 +1,4 @@
-import type { AppSettings, DocumentRecord, MemoTemplate } from '../types';
+import { THEME_IDS, type AppSettings, type DocumentRecord, type MemoTemplate, type ThemeId } from '../types';
 import { normalizeFields } from './fields';
 import { BUILTIN_TEMPLATE_ID, normalizeTemplate } from './templates';
 
@@ -81,11 +81,19 @@ export function loadUserTemplates(s: KeyValueStore = store()): MemoTemplate[] {
     .filter((t): t is MemoTemplate => t !== null && t.id !== BUILTIN_TEMPLATE_ID);
 }
 
-export function loadSettings(s: KeyValueStore = store()): AppSettings {
-  const data = readJson(STORAGE_KEYS.settings, s) as Partial<AppSettings> | null;
+export const DEFAULT_SETTINGS: AppSettings = { defaultTemplateId: BUILTIN_TEMPLATE_ID, theme: 'default' };
+
+/** ตรวจค่าการตั้งค่า (ใช้ตอนโหลดและนำเข้า) — ค่าที่ไม่ถูกต้องใช้ค่าเริ่มต้น */
+export function normalizeSettings(input: unknown): AppSettings {
+  const data = (input && typeof input === 'object' ? input : {}) as Partial<AppSettings>;
   return {
-    defaultTemplateId: typeof data?.defaultTemplateId === 'string' ? data.defaultTemplateId : BUILTIN_TEMPLATE_ID,
+    defaultTemplateId: typeof data.defaultTemplateId === 'string' ? data.defaultTemplateId : DEFAULT_SETTINGS.defaultTemplateId,
+    theme: THEME_IDS.includes(data.theme as ThemeId) ? (data.theme as ThemeId) : DEFAULT_SETTINGS.theme,
   };
+}
+
+export function loadSettings(s: KeyValueStore = store()): AppSettings {
+  return normalizeSettings(readJson(STORAGE_KEYS.settings, s));
 }
 
 export function saveDocuments(docs: DocumentRecord[], s?: KeyValueStore) {

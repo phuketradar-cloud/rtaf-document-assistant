@@ -1,5 +1,5 @@
 import type { AppSettings, DocumentRecord, MemoTemplate } from '../types';
-import { normalizeDocument } from './storage';
+import { normalizeDocument, normalizeSettings } from './storage';
 import { BUILTIN_TEMPLATE_ID, normalizeTemplate } from './templates';
 
 export const BACKUP_APP_ID = 'rtaf-document-assistant';
@@ -52,7 +52,6 @@ export function parseBackup(text: string): ParseResult {
     .map(normalizeTemplate)
     .filter((x): x is MemoTemplate => x !== null && x.id !== BUILTIN_TEMPLATE_ID);
   const skipped = rawDocs.length - documents.length + (rawTemplates.length - templates.length);
-  const s = (d.settings ?? {}) as Partial<AppSettings>;
   return {
     ok: true,
     skipped,
@@ -62,7 +61,7 @@ export function parseBackup(text: string): ParseResult {
       exportedAt: typeof d.exportedAt === 'string' ? d.exportedAt : '',
       documents,
       templates,
-      settings: { defaultTemplateId: typeof s.defaultTemplateId === 'string' ? s.defaultTemplateId : BUILTIN_TEMPLATE_ID },
+      settings: normalizeSettings(d.settings),
     },
   };
 }
