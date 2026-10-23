@@ -2,6 +2,7 @@ import { createContext, useCallback, useContext, useMemo, useRef, useState, type
 import type { AppSettings, DocumentRecord, MemoFields, MemoTemplate } from '../types';
 import {
   clearAll,
+  DEFAULT_SETTINGS,
   loadDocuments,
   loadSettings,
   loadUserTemplates,
@@ -56,7 +57,7 @@ function initialState(): { state: State; error?: string } {
     return { state: { documents: loadDocuments(), userTemplates: loadUserTemplates(), settings: loadSettings() } };
   } catch (e) {
     return {
-      state: { documents: [], userTemplates: [], settings: { defaultTemplateId: BUILTIN_TEMPLATE_ID } },
+      state: { documents: [], userTemplates: [], settings: { ...DEFAULT_SETTINGS } },
       error: e instanceof Error ? e.message : 'อ่านข้อมูลที่บันทึกไว้ไม่สำเร็จ',
     };
   }
@@ -155,7 +156,7 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
           notify('error', e instanceof Error ? e.message : 'ลบข้อมูลไม่สำเร็จ');
           return false;
         }
-        const empty: State = { documents: [], userTemplates: [], settings: { defaultTemplateId: BUILTIN_TEMPLATE_ID } };
+        const empty: State = { documents: [], userTemplates: [], settings: { ...DEFAULT_SETTINGS } };
         stateRef.current = empty;
         setState(empty);
         return true;
