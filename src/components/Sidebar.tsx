@@ -5,6 +5,7 @@ const ITEMS: { href: string; label: string; match: Route['name'][] }[] = [
   { href: '#/new', label: 'สร้างเอกสาร', match: ['new', 'edit'] },
   { href: '#/documents', label: 'เอกสารทั้งหมด', match: ['documents'] },
   { href: '#/templates', label: 'แม่แบบ', match: ['templates'] },
+  { href: '#/learn', label: 'เรียนรู้จากตัวอย่าง', match: ['learn'] },
   { href: '#/settings', label: 'ตั้งค่า', match: ['settings'] },
 ];
 
