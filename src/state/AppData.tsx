@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useMemo, useRef, useState, type ReactNode } from 'react';
-import type { AppSettings, DocumentRecord, MemoTemplate } from '../types';
+import type { AppSettings, DocumentRecord, MemoFields, MemoTemplate } from '../types';
 import {
   clearAll,
   loadDocuments,
@@ -45,6 +45,8 @@ interface AppDataValue {
   /** หน้าแก้ไขลงทะเบียนฟังก์ชันตรวจว่ามีการแก้ไขที่ยังไม่บันทึกหรือไม่ */
   setLeaveGuard: (guard: (() => boolean) | null) => void;
   leaveGuardRef: React.MutableRefObject<(() => boolean) | null>;
+  /** ข้อมูลตั้งต้นสำหรับ “เอกสารใหม่” ครั้งถัดไป (จากหน้าเรียนรู้) — ไม่ถูกบันทึกจนกว่าผู้ใช้กดบันทึก */
+  newDocPrefillRef: React.MutableRefObject<{ templateId: string; fields: Partial<MemoFields> } | null>;
 }
 
 const Ctx = createContext<AppDataValue | null>(null);
@@ -69,6 +71,7 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
     init.error ? [{ id: 'load-error', kind: 'error', text: init.error }] : [],
   );
   const leaveGuardRef = useRef<(() => boolean) | null>(null);
+  const newDocPrefillRef = useRef<{ templateId: string; fields: Partial<MemoFields> } | null>(null);
 
   const dismissNotice = useCallback((id: string) => setNotices((n) => n.filter((x) => x.id !== id)), []);
   const notify = useCallback(
@@ -161,6 +164,7 @@ export function AppDataProvider({ children }: { children: ReactNode }) {
         leaveGuardRef.current = guard;
       },
       leaveGuardRef,
+      newDocPrefillRef,
     };
   }, [state, notices, notify, dismissNotice, commit]);
 
