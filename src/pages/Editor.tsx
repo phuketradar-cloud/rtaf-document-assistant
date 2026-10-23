@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import type { DocumentRecord, FieldKey, MemoFields } from '../types';
+import type { DocumentRecord, FieldKey, MemoFields, MemoTemplate } from '../types';
 import { useAppData } from '../state/AppData';
 import { navigate } from '../router';
 import MemoForm from '../components/MemoForm';
@@ -39,15 +39,36 @@ function sameFields(a: MemoFields, b: MemoFields) {
 }
 
 function EditorInner({ existing }: { existing?: DocumentRecord }) {
-  const { documents, templates, settings, saveDocument, notify, setLeaveGuard } = useAppData();
-  const [fields, setFields] = useState<MemoFields>(() => (existing ? { ...existing.fields } : emptyFields()));
-  const [templateId, setTemplateId] = useState(existing?.templateId ?? settings.defaultTemplateId);
+  const { documents, templates, settings, saveDocument, notify, setLeaveGuard, newDocPrefillRef } = useAppData();
+  // เอกสารใหม่: เติมข้อความเริ่มต้นของแม่แบบ และข้อความที่เลือกจากหน้า “เรียนรู้จากตัวอย่าง” (ถ้ามี)
+  const [start] = useState(() => {
+    if (existing) return { templateId: existing.templateId, fields: { ...existing.fields }, fromExample: false };
+    const pre = newDocPrefillRef.current;
+    const tid = pre?.templateId ?? settings.defaultTemplateId;
+    const tpl = resolveTemplate(templates, tid).template;
+    return { templateId: tid, fields: { ...emptyFields(), ...tpl.defaultFields, ...pre?.fields }, fromExample: !!pre };
+  });
+  useEffect(() => {
+    newDocPrefillRef.current = null;
+  }, [newDocPrefillRef]);
+  const [fields, setFields] = useState<MemoFields>(start.fields);
+  const [templateId, setTemplateId] = useState(start.templateId);
   const [view, setView] = useState<'form' | 'preview'>('form');
   const [exporting, setExporting] = useState(false);
   const { template, missing } = resolveTemplate(templates, templateId);
 
-  const baseFields = existing?.fields ?? emptyFields();
-  const baseTemplateId = existing?.templateId ?? settings.defaultTemplateId;
+  const templateDefaults = (t: MemoTemplate): MemoFields => ({ ...emptyFields(), ...t.defaultFields });
+  // เอกสารใหม่ถือว่า “ยังไม่แก้ไข” เมื่อมีเพียงข้อความเริ่มต้นของแม่แบบ
+  const baseFields = existing?.fields ?? templateDefaults(template);
+  const baseTemplateId = existing?.templateId ?? start.templateId;
+
+  const changeTemplate = (id: string) => {
+    // เอกสารใหม่ที่ยังไม่ได้พิมพ์อะไรเพิ่ม: เปลี่ยนข้อความเริ่มต้นตามแม่แบบใหม่
+    if (!existing && sameFields(fields, templateDefaults(template))) {
+      setFields(templateDefaults(resolveTemplate(templates, id).template));
+    }
+    setTemplateId(id);
+  };
   const dirty = !sameFields(fields, baseFields) || templateId !== baseTemplateId;
   const dirtyRef = useRef(dirty);
   dirtyRef.current = dirty;
@@ -142,7 +163,7 @@ function EditorInner({ existing }: { existing?: DocumentRecord }) {
         <div className="toolbar-actions">
           <label className="inline-label">
             แม่แบบ
-            <select value={template.id} onChange={(e) => setTemplateId(e.target.value)}>
+            <select value={template.id} onChange={(e) => changeTemplate(e.target.value)}>
               {templates.map((t) => (
                 <option key={t.id} value={t.id}>
                   {t.name}
@@ -159,6 +180,11 @@ function EditorInner({ existing }: { existing?: DocumentRecord }) {
         </div>
       </div>
 
+      {start.fromExample && !existing && (
+        <div className="banner warning">
+          เติมข้อความจากไฟล์ตัวอย่างแล้ว — โปรดตรวจและแก้ไขทุกช่อง โดยเฉพาะเลขที่ วันที่ เรื่อง และชื่อบุคคล ก่อนบันทึก
+        </div>
+      )}
       {missing && (
         <div className="banner warning">
           ไม่พบแม่แบบที่เอกสารนี้เคยใช้ (อาจถูกลบไปแล้ว) — ตอนนี้แสดงด้วยแม่แบบเริ่มต้นของโปรแกรม เลือกแม่แบบใหม่แล้วกดบันทึก

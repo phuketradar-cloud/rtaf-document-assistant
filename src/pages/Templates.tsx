@@ -23,6 +23,7 @@ export default function Templates() {
       name: `${t.name} (สำเนา)`,
       labels: { ...t.labels },
       requiredFields: [...t.requiredFields],
+      defaultFields: { ...t.defaultFields },
       createdAt: now,
       updatedAt: now,
     };
@@ -169,6 +170,8 @@ function AlignSelect({ label, value, onChange }: { label: string; value: Alignme
 }
 
 const LABEL_KEYS: LabelKey[] = ['department', 'docNumber', 'date', 'subject', 'to', 'reference', 'enclosures'];
+const DEFAULT_FIELD_KEYS: FieldKey[] = FIELD_KEYS.filter((k) => k !== 'date');
+const MULTILINE_DEFAULTS: FieldKey[] = ['reference', 'enclosures', 'body', 'closing', 'signerPosition'];
 
 function TemplateEditor({ initial, onClose }: { initial: MemoTemplate; onClose: () => void }) {
   const { saveTemplate, notify, setLeaveGuard } = useAppData();
@@ -191,6 +194,13 @@ function TemplateEditor({ initial, onClose }: { initial: MemoTemplate; onClose: 
 
   const set = <K extends keyof MemoTemplate>(key: K, value: MemoTemplate[K]) => setT((x) => ({ ...x, [key]: value }));
   const setLabel = (k: LabelKey, v: string) => setT((x) => ({ ...x, labels: { ...x.labels, [k]: v } }));
+  const setDefault = (k: FieldKey, v: string) =>
+    setT((x) => {
+      const defaultFields = { ...x.defaultFields };
+      if (v) defaultFields[k] = v;
+      else delete defaultFields[k];
+      return { ...x, defaultFields };
+    });
   const toggleRequired = (k: FieldKey) =>
     setT((x) => ({
       ...x,
@@ -405,6 +415,21 @@ function TemplateEditor({ initial, onClose }: { initial: MemoTemplate; onClose: 
                 </label>
               ))}
             </div>
+          </fieldset>
+
+          <fieldset>
+            <legend>ข้อความเริ่มต้นสำหรับเอกสารใหม่</legend>
+            <p className="hint">เติมให้อัตโนมัติเมื่อสร้างเอกสารใหม่ด้วยแม่แบบนี้ (แก้ไขได้ในแต่ละเอกสาร) — เว้นว่างได้</p>
+            {DEFAULT_FIELD_KEYS.map((k) => (
+              <label key={k}>
+                {FIELD_LABELS[k]}
+                {MULTILINE_DEFAULTS.includes(k) ? (
+                  <textarea rows={2} value={t.defaultFields[k] ?? ''} onChange={(e) => setDefault(k, e.target.value)} />
+                ) : (
+                  <input value={t.defaultFields[k] ?? ''} onChange={(e) => setDefault(k, e.target.value)} />
+                )}
+              </label>
+            ))}
           </fieldset>
         </div>
         <div className="editor-preview">
