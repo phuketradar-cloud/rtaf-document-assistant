@@ -1,0 +1,236 @@
+/*
+ * ธีม Futuristic HUD — แนวจอแสดงผลทางยุทธวิธี/ศูนย์บัญชาการ
+ * ใช้เมื่อ <html data-theme="hud"> · แทนที่ token ของธีมมาตรฐาน และเพิ่มการตกแต่งแบบเรขาคณิต
+ * หลักการ: เส้นบาง สีฟ้าอมเขียว (cyan) เป็นสีหลัก, ใช้สีส้ม/แดงเฉพาะสถานะเตือน/วิกฤต, เรืองแสงเพียงเล็กน้อย
+ * หน้ากระดาษตัวอย่างเอกสารยังเป็นสีขาว เพราะแทนเอกสารจริงที่จะพิมพ์
+ */
+:root[data-theme='hud'] {
+  color-scheme: dark;
+
+  /* ชุดสีตามที่กำหนด */
+  --hud-bg: #080e18;
+  --hud-bg-2: #101a28;
+  --hud-panel: #111f2d;
+  --hud-elevated: #192b3b;
+  --hud-cyan: #27e5e0;
+  --hud-ice: #8ddfff;
+  --hud-steel: #527fad;
+  --hud-text: #d9eaf2;
+  --hud-text-2: #91a8b8;
+  --hud-text-3: #617889;
+  --hud-success: #55d6a0;
+  --hud-warning: #ffb84d;
+  --hud-critical: #ff654f;
+  --hud-divider: #294152;
+
+  --bg: var(--hud-bg);
+  --bg-2: var(--hud-bg-2);
+  --surface: var(--hud-panel);
+  --surface-2: var(--hud-elevated);
+  --border: rgba(82, 127, 173, 0.5);
+  --divider: var(--hud-divider);
+  --text: var(--hud-text);
+  --muted: var(--hud-text-2);
+  --heading: var(--hud-ice);
+  --link: var(--hud-cyan);
+  --primary: rgba(39, 229, 224, 0.1);
+  --primary-hover: rgba(39, 229, 224, 0.18);
+  --on-primary: var(--hud-cyan);
+  --accent: var(--hud-cyan);
+  --on-accent: #06121a;
+  --focus: var(--hud-cyan);
+  --input-bg: #0b1622;
+  --nav-bg: #0a1220;
+  --nav-text: var(--hud-text-2);
+  --nav-hover: rgba(39, 229, 224, 0.06);
+  --nav-active-bg: rgba(39, 229, 224, 0.08);
+  --nav-active-text: var(--hud-cyan);
+  --nav-divider: var(--hud-divider);
+  --table-head-bg: var(--hud-bg-2);
+  --preview-bg: #0b1422;
+  --chart-track: #1d3243;
+  --chart-fill: var(--hud-cyan);
+  --error: var(--hud-critical);
+  --error-bg: rgba(255, 101, 79, 0.1);
+  --error-border: rgba(255, 101, 79, 0.55);
+  --error-input-bg: rgba(255, 101, 79, 0.06);
+  --warning: var(--hud-warning);
+  --warning-bg: rgba(255, 184, 77, 0.09);
+  --warning-border: rgba(255, 184, 77, 0.5);
+  --warning-input: var(--hud-warning);
+  --info: var(--hud-ice);
+  --info-bg: rgba(141, 223, 255, 0.07);
+  --info-border: rgba(141, 223, 255, 0.35);
+  --success: var(--hud-success);
+  --success-bg: rgba(85, 214, 160, 0.09);
+  --success-border: rgba(85, 214, 160, 0.5);
+  --shadow: 0 0 0 1px rgba(39, 229, 224, 0.2), 0 10px 28px rgba(0, 0, 0, 0.55);
+  --radius: 2px;
+  /* Bahnschrift มีใน Windows 10/11 — ตัวเลขดูเป็นแบบเครื่องมือวัด; อักษรไทยใช้ฟอนต์ถัดไปในรายการ */
+  --font-num: 'Bahnschrift', 'DIN Alternate', 'Segoe UI', 'Leelawadee UI', sans-serif;
+
+  --hud-cut: 10px;
+  --hud-glow: 0 0 10px rgba(39, 229, 224, 0.22);
+  --hud-grid: rgba(82, 127, 173, 0.07);
+}
+
+/* ---------- พื้นหลังตารางกริดละเอียด ---------- */
+[data-theme='hud'] body {
+  background-color: var(--bg);
+  background-image:
+    linear-gradient(var(--hud-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--hud-grid) 1px, transparent 1px);
+  background-size: 32px 32px;
+  background-attachment: fixed;
+}
+[data-theme='hud'] * { scrollbar-color: var(--hud-steel) transparent; }
+[data-theme='hud'] input[type='checkbox'],
+[data-theme='hud'] input[type='radio'] { accent-color: var(--hud-cyan); }
+
+/* ---------- หัวข้อ ---------- */
+[data-theme='hud'] h1 { font-weight: 600; letter-spacing: 0.02em; display: flex; align-items: center; gap: 0.6rem; }
+[data-theme='hud'] h1::before {
+  content: '';
+  width: 4px;
+  height: 1.1em;
+  background: var(--hud-cyan);
+  box-shadow: var(--hud-glow);
+  flex: none;
+}
+[data-theme='hud'] h2 { font-size: 1rem; font-weight: 600; letter-spacing: 0.03em; display: flex; align-items: center; gap: 0.5rem; }
+[data-theme='hud'] h2::before { content: ''; width: 10px; height: 2px; background: var(--hud-cyan); flex: none; }
+[data-theme='hud'] .page-head {
+  padding-bottom: 0.75rem;
+  background: linear-gradient(90deg, var(--hud-cyan) 0 72px, var(--hud-divider) 72px) bottom / 100% 1px no-repeat;
+}
+[data-theme='hud'] legend { color: var(--hud-ice); letter-spacing: 0.03em; font-size: 0.92rem; }
+[data-theme='hud'] legend::before {
+  content: '';
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin-right: 0.45rem;
+  border: 1px solid var(--hud-cyan);
+  transform: rotate(45deg) translateY(-2px);
+}
+
+/* ---------- แผงข้อมูลมุมตัด + มุมยึดสีฟ้า ---------- */
+[data-theme='hud'] :is(.card, fieldset, .validation-panel, .stat, .doc-table, .import-box, .theme-option) {
+  clip-path: polygon(
+    0 0,
+    calc(100% - var(--hud-cut)) 0,
+    100% var(--hud-cut),
+    100% 100%,
+    var(--hud-cut) 100%,
+    0 calc(100% - var(--hud-cut))
+  );
+}
+[data-theme='hud'] :is(.card, .validation-panel, .stat) { position: relative; }
+[data-theme='hud'] :is(.card, .validation-panel, .stat)::before,
+[data-theme='hud'] :is(.card, .validation-panel, .stat)::after {
+  content: '';
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  pointer-events: none;
+}
+[data-theme='hud'] :is(.card, .validation-panel, .stat)::before {
+  top: 0;
+  left: 0;
+  border-top: 1px solid var(--hud-cyan);
+  border-left: 1px solid var(--hud-cyan);
+}
+[data-theme='hud'] :is(.card, .validation-panel, .stat)::after {
+  bottom: 0;
+  right: 0;
+  border-bottom: 1px solid var(--hud-cyan);
+  border-right: 1px solid var(--hud-cyan);
+}
+[data-theme='hud'] .card.danger-zone::before,
+[data-theme='hud'] .card.danger-zone::after { border-color: var(--hud-critical); }
+[data-theme='hud'] .stat { border-left-width: 1px; }
+[data-theme='hud'] .stat-num { color: var(--hud-cyan); font-weight: 600; text-shadow: 0 0 8px rgba(39, 229, 224, 0.25); }
+[data-theme='hud'] .stat-label,
+[data-theme='hud'] .panel-title { letter-spacing: 0.03em; font-size: 0.85rem; }
+[data-theme='hud'] a.stat:hover { border-color: var(--hud-cyan); }
+
+/* ---------- เมนูด้านข้าง ---------- */
+[data-theme='hud'] .sidebar { border-right: 1px solid var(--hud-divider); }
+[data-theme='hud'] .brand-name { color: var(--hud-ice); letter-spacing: 0.04em; }
+[data-theme='hud'] .brand-sub { color: var(--hud-text-3); opacity: 1; letter-spacing: 0.04em; }
+[data-theme='hud'] .sidebar a { border-radius: var(--radius); }
+[data-theme='hud'] .sidebar a:hover { color: var(--hud-text); }
+[data-theme='hud'] .sidebar a.active {
+  border-color: rgba(39, 229, 224, 0.7);
+  box-shadow: inset 3px 0 0 var(--hud-cyan), var(--hud-glow);
+  font-weight: 600;
+}
+[data-theme='hud'] .nav-num { border-radius: 2px; font-size: 0.75rem; }
+[data-theme='hud'] .sidebar-note { color: var(--hud-text-3); opacity: 1; }
+[data-theme='hud'] .topbar { border-bottom: 1px solid var(--hud-divider); }
+
+/* ---------- ปุ่ม ---------- */
+[data-theme='hud'] .btn { background: transparent; border-color: var(--hud-steel); color: var(--hud-text); }
+[data-theme='hud'] .btn:hover { border-color: var(--hud-cyan); color: var(--hud-cyan); box-shadow: var(--hud-glow); }
+[data-theme='hud'] .btn:disabled { opacity: 0.5; box-shadow: none; }
+[data-theme='hud'] .btn-primary { background: var(--primary); border-color: var(--hud-cyan); color: var(--hud-cyan); }
+[data-theme='hud'] .btn-primary:hover { background: var(--primary-hover); }
+[data-theme='hud'] .btn-accent { background: var(--hud-cyan); border-color: var(--hud-cyan); color: var(--on-accent); font-weight: 600; }
+[data-theme='hud'] .btn-accent:hover { color: var(--on-accent); background: #5cf0ec; }
+[data-theme='hud'] .btn-danger { color: var(--hud-critical); border-color: var(--error-border); }
+[data-theme='hud'] .btn-danger:hover { color: var(--hud-critical); border-color: var(--hud-critical); box-shadow: 0 0 10px rgba(255, 101, 79, 0.2); background: var(--error-bg); }
+[data-theme='hud'] .btn-ghost { border-color: var(--hud-steel); color: var(--hud-text); }
+
+/* ---------- ช่องกรอก ---------- */
+[data-theme='hud'] :is(input[type='text'], input[type='search'], input[type='date'], input[type='number'], input:not([type]), select, textarea) {
+  border-color: var(--hud-divider);
+}
+[data-theme='hud'] :is(input, select, textarea):hover { border-color: var(--hud-steel); }
+[data-theme='hud'] :is(input, select, textarea):focus {
+  outline: 1px solid var(--hud-cyan);
+  border-color: var(--hud-cyan);
+  box-shadow: var(--hud-glow);
+}
+[data-theme='hud'] label { color: var(--hud-text); }
+[data-theme='hud'] .opt,
+[data-theme='hud'] .hint { color: var(--hud-text-3); }
+[data-theme='hud'] .has-error :is(input, textarea) { border-color: var(--hud-critical); }
+
+/* ---------- ตาราง ---------- */
+[data-theme='hud'] .doc-table { border-color: var(--hud-divider); }
+[data-theme='hud'] .doc-table th { color: var(--hud-text-2); font-size: 0.8rem; font-weight: 600; letter-spacing: 0.04em; border-bottom-color: var(--hud-steel); }
+[data-theme='hud'] .doc-table td { font-variant-numeric: tabular-nums; }
+[data-theme='hud'] .doc-table tbody tr:hover td { background: var(--surface-2); }
+[data-theme='hud'] .recent-list a:hover { background: var(--surface-2); }
+
+/* ---------- ป้ายสถานะ / แถบแจ้ง ---------- */
+[data-theme='hud'] :is(.status, .tag, .pill) { border-radius: 2px; border: 1px solid currentColor; letter-spacing: 0.02em; }
+[data-theme='hud'] .banner { border-left-width: 3px; border-left-color: currentColor; }
+[data-theme='hud'] .notice { border-radius: 2px; border-left-width: 3px; background-color: var(--hud-elevated); }
+
+/* ---------- พื้นที่ตัวอย่างเอกสาร ---------- */
+[data-theme='hud'] .editor-preview {
+  border: 1px solid var(--hud-divider);
+  background-color: var(--preview-bg);
+  background-image:
+    linear-gradient(var(--hud-grid) 1px, transparent 1px),
+    linear-gradient(90deg, var(--hud-grid) 1px, transparent 1px);
+  background-size: 24px 24px;
+}
+[data-theme='hud'] .preview-caption { color: var(--hud-text-3); letter-spacing: 0.02em; }
+[data-theme='hud'] .preview-page { box-shadow: 0 0 0 1px rgba(39, 229, 224, 0.35), 0 0 28px rgba(0, 0, 0, 0.6); }
+[data-theme='hud'] .view-switch { border-color: var(--hud-steel); }
+[data-theme='hud'] .view-switch button.active { background: var(--primary); color: var(--hud-cyan); box-shadow: inset 0 -2px 0 var(--hud-cyan); }
+
+/* ---------- เกจ / มิเตอร์ ---------- */
+[data-theme='hud'] .gauge-fill.tone-normal { filter: drop-shadow(0 0 3px rgba(39, 229, 224, 0.45)); }
+[data-theme='hud'] .gauge-value { fill: var(--hud-cyan); }
+[data-theme='hud'] .month-bar-seg { border-radius: 0; }
+[data-theme='hud'] .month-bar-seg.on { box-shadow: 0 0 4px rgba(39, 229, 224, 0.35); }
+
+/* ---------- การเลือกธีม ---------- */
+[data-theme='hud'] .theme-option.selected { border-color: var(--hud-cyan); box-shadow: var(--hud-glow); }
+
+@media (prefers-reduced-motion: reduce) {
+  [data-theme='hud'] * { transition: none !important; }
+}

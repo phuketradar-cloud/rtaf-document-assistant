@@ -84,8 +84,13 @@ export interface MemoTemplate {
   defaultFields: Partial<MemoFields>;
 }
 
+/** ธีมหน้าจอ (มีผลเฉพาะหน้าจอโปรแกรม ไม่มีผลกับไฟล์ Word ที่ส่งออก) */
+export const THEME_IDS = ['default', 'hud'] as const;
+export type ThemeId = (typeof THEME_IDS)[number];
+
 export interface AppSettings {
   defaultTemplateId: string;
+  theme: ThemeId;
 }
 
 export type IssueSeverity = 'error' | 'warning' | 'info';

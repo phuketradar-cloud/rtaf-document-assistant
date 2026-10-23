@@ -13,8 +13,12 @@ import { parseRoute, type Route } from './router';
 const LEAVE_MESSAGE = 'มีการแก้ไขที่ยังไม่ได้บันทึก ต้องการออกจากหน้านี้โดยไม่บันทึกหรือไม่?';
 
 export default function App() {
-  const { leaveGuardRef } = useAppData();
+  const { leaveGuardRef, settings } = useAppData();
   const [route, setRoute] = useState<Route>(() => parseRoute(window.location.hash));
+
+  useEffect(() => {
+    document.documentElement.dataset.theme = settings.theme;
+  }, [settings.theme]);
   const [menuOpen, setMenuOpen] = useState(false);
   const lastHash = useRef(window.location.hash);
   const skipNext = useRef(false);
